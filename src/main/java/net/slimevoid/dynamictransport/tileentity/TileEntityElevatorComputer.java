@@ -16,6 +16,7 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.MathHelper;
+import net.slimevoid.dynamictransport.blocks.BlockTransportBase;
 import net.slimevoid.dynamictransport.core.lib.BlockLib;
 import net.slimevoid.dynamictransport.core.lib.ConfigurationLib;
 import net.slimevoid.dynamictransport.entities.EntityMasterElevator;
@@ -400,6 +401,14 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                 this.boundElevatorBlocks
         );
 
+        for (ChunkCoordinates boundBlock : this.boundMarkerBlocks) {
+            TileEntity tile = this.worldObj.getTileEntity(boundBlock.posX, boundBlock.posY, boundBlock.posZ);
+            if (tile != null && tile instanceof TileEntityFloorMarker) {
+                TileEntityFloorMarker marker = (TileEntityFloorMarker) tile;
+                marker.setActive(false);
+                worldObj.notifyBlockChange(boundBlock.posX, boundBlock.posY, boundBlock.posZ, worldObj.getBlock(boundBlock.posX, boundBlock.posY, boundBlock.posZ));
+            }
+        }
 
     }
 
@@ -576,7 +585,17 @@ public class TileEntityElevatorComputer extends TileEntityTransportBase {
                                this.floorSpool.get(nextFloor));
             }
         }
-
+        for (ChunkCoordinates boundBlock : this.boundMarkerBlocks) {
+            TileEntity tile = this.worldObj.getTileEntity(boundBlock.posX, boundBlock.posY, boundBlock.posZ);
+            if (tile != null && tile instanceof TileEntityFloorMarker) {
+                TileEntityFloorMarker marker = (TileEntityFloorMarker) tile;
+                int floorY = marker.getFloorY();
+                if (floorY == destination) {
+                    marker.setActive(true);
+                }
+                worldObj.notifyBlockChange(boundBlock.posX, boundBlock.posY, boundBlock.posZ, worldObj.getBlock(boundBlock.posX, boundBlock.posY, boundBlock.posZ));
+            }
+        }
     }
 
     @SuppressWarnings("UnusedDeclaration")
